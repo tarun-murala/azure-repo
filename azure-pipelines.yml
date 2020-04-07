@@ -1,0 +1,71 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: ServiceNow Job Notification@0
+  inputs:
+    connectedServiceName: 'TarunDevOpsMadrid'
+    Phase: 'STARTED'
+- task: Maven@3
+  name: 'build'
+  displayName: 'Build'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'clean install'
+- task: ServiceNow Job Notification@0
+  inputs:
+    connectedServiceName: 'TarunDevOpsMadrid'
+    Phase: 'COMPLETED'
+- task: ServiceNow Job Notification@0
+  inputs:
+    connectedServiceName: 'TarunDevOpsMadrid'
+    upstream: 'Build'
+    Phase: 'STARTED'
+- task: Maven@3
+  name: 'test'
+  displayName: 'Test'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'test'
+- task: ServiceNow Job Notification@0
+  inputs:
+    connectedServiceName: 'TarunDevOpsMadrid'
+    upstream: 'Build'
+    Phase: 'COMPLETED'
+- task: ServiceNow Job Notification@0
+  inputs:
+    connectedServiceName: 'TarunDevOpsMadrid'
+    upstream: 'Test'
+    Phase: 'STARTED'
+- task: Maven@3
+  name: 'deploy'
+  displayName: 'Deploy'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'package'
+- task: ServiceNow Job Notification@0
+  inputs:
+    connectedServiceName: 'TarunDevOpsMadrid'
+    upstream: 'Test'
+    Phase: 'COMPLETED'
