@@ -1,5 +1,3 @@
-Testing1
-
 Sample Azure Yaml consists of 
 Build -> Test -> Deploy Jobs (test123)
 
